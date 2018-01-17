@@ -1,0 +1,70 @@
+group 'cc.domovoi'
+version '3.4'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId "${project.group}"
+            artifactId "${project.name}"
+            version "${project.version}"
+        }
+    }
+}
+
+
+bintray {
+    user = "${bintray_user}"
+    key = "${bintray_api_key}"
+    publications = ['MyPublication']
+    pkg {
+        repo = 'domovoi'
+        name = "${project.name}"
+        desc = 'This artifact is used to solve the problem of OpenCV dependencies in Java.'
+        licenses = ['BSD 3-Clause']
+        vcsUrl = 'https://github.com/izumookuni/opencv-driver.git'
+        labels = ['opencv', 'driver']
+        githubRepo = "${github_user}/${project.name}"
+        version {
+            name = "${project.version}"
+            desc = 'OpenCV 3.4 Java driver'
+            released  = new Date()
+        }
+    }
+
+}
